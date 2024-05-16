@@ -1,4 +1,6 @@
 ## TGrid OON Example
+![Object Oriented Network](/object-oriented-network.png)
+
 `tgrid.example.object-oriented-network` is an example project of `TGrid`.
 
 It describes how to development complicated network system with RPC (Remote Procedure Call).
