@@ -1,8 +1,8 @@
 {
   "private": true,
-  "name": "tgrid.example.worker",
+  "name": "tgrid.example.object-oriented-network",
   "version": "1.0.0",
-  "description": "TGrid Worker Example",
+  "description": "TGrid OON (Object Oriented Network) Example",
   "main": "index.js",
   "scripts": {
     "start": "ts-node src"
