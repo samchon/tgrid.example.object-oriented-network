@@ -13,13 +13,18 @@ const EXTENSION = __filename.endsWith(".ts") ? "ts" : "js";
 /// - `scientific` from remote worker server
 /// - `statistics` from remote worker server
 class CompositeCalculator extends SimpleCalculator {
-  public constructor(
-    config: ICalcConfig,
-    listener: Driver<ICalcEventListener>,
-    public readonly scientific: Driver<IScientificCalculator>,
-    public readonly statistics: Driver<IStatisticsCalculator>,
-  ) {
-    super(config, listener);
+  public readonly scientific: Driver<IScientificCalculator>;
+  public readonly statistics: Driver<IStatisticsCalculator>;
+
+  public constructor(props: {
+    config: ICalcConfig;
+    listener: Driver<ICalcEventListener>;
+    scientific: Driver<IScientificCalculator>;
+    statistics: Driver<IStatisticsCalculator>;
+  }) {
+    super(props.config, props.listener);
+    this.scientific = props.scientific;
+    this.statistics = props.statistics;
   }
 }
 
@@ -41,16 +46,24 @@ const main = async () => {
     CompositeCalculator,
     ICalcEventListener
   > = new WorkerServer();
-  const header: ICalcConfig = await server.getHeader();
+  const config: ICalcConfig = await server.getHeader();
   const listener: Driver<ICalcEventListener> = server.getDriver();
 
   // constructor provider combining with remote worker-servers
-  const provider: CompositeCalculator = new CompositeCalculator(
-    header,
+  const provider: CompositeCalculator = new CompositeCalculator({
+    config,
     listener,
-    await connect(header, listener, `${__dirname}/scientific.${EXTENSION}`),
-    await connect(header, listener, `${__dirname}/statistics.${EXTENSION}`),
-  );
+    scientific: await connect<Driver<IScientificCalculator>>(
+      config,
+      listener,
+      `${__dirname}/scientific.${EXTENSION}`,
+    ),
+    statistics: await connect<Driver<IStatisticsCalculator>>(
+      config,
+      listener,
+      `${__dirname}/statistics.${EXTENSION}`,
+    ),
+  });
   await server.open(provider);
 };
 main().catch((exp) => {
